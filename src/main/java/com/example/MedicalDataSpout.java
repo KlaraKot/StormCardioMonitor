@@ -31,9 +31,9 @@ public class MedicalDataSpout extends BaseRichSpout {
                 throw new RuntimeException("Nie znaleziono pliku heart.csv w zasobach");
             }
             reader = new BufferedReader(new InputStreamReader(is));
-            reader.readLine(); // pominięcie nagłówka
+            reader.readLine();
         } catch (IOException e) {
-            throw new RuntimeException("Błąd otwarcia pliku CSV", e);
+            throw new RuntimeException("Blad otwarcia pliku CSV", e);
         }
     }
 
@@ -43,7 +43,6 @@ public class MedicalDataSpout extends BaseRichSpout {
             String line = reader.readLine();
 
             if (line == null) {
-                // koniec pliku – resetujemy czytnik i zaczynamy od nowa
                 reader.close();
                 openReader();
                 line = reader.readLine();
@@ -78,7 +77,7 @@ public class MedicalDataSpout extends BaseRichSpout {
                     restecg, thalach, exang, oldpeak, slope, ca, thal, target, timestamp));
 
         } catch (IOException e) {
-            throw new RuntimeException("Błąd odczytu pliku CSV", e);
+            throw new RuntimeException("Blad odczytu pliku CSV", e);
         }
     }
 
@@ -96,7 +95,6 @@ public class MedicalDataSpout extends BaseRichSpout {
             try {
                 reader.close();
             } catch (IOException e) {
-                // ignorujemy błąd przy zamykaniu
             }
         }
     }
