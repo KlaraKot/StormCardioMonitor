@@ -13,6 +13,8 @@ public class MedicalTopologyMain {
         builder.setSpout("medical-spout", new MedicalDataSpout(), 1);
         builder.setBolt("alert-bolt", new MedicalAlertBolt(), 1)
                .shuffleGrouping("medical-spout");
+        builder.setBolt("csv-writer-bolt", new CsvWriterBolt(), 1)
+                .globalGrouping("alert-bolt");
 
         Config config = new Config();
         config.setDebug(false);

@@ -7,11 +7,6 @@ import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Locale;
 
 import java.util.Map;
 
@@ -30,32 +25,12 @@ public class MedicalAlertBolt extends BaseRichBolt {
     private long windowStart     = 0;
     private double totalLatency  = 0;
 
-    private PrintWriter csvWriter;
 
     @Override
     public void prepare(Map<String, Object> conf, TopologyContext context, OutputCollector collector) {
         this.collector = collector;
         this.windowStart = System.currentTimeMillis();
 
-        try {
-            File dir = new File("results");
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
-            File csvFile = new File(dir, "heart_results.csv");
-            boolean fileExists = csvFile.exists();
-
-            csvWriter = new PrintWriter(new FileWriter(csvFile, false));
-
-            if (!fileExists) {
-                csvWriter.println("timestamp,age,sex,cp,trestbps,chol,thalach,exang,oldpeak,ca,target,anomaly,alertMessage,latencyMs,tupleCount,anomalyCount");
-                csvWriter.flush();
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException("Nie mozna utworzyc pliku CSV z wynikami", e);
-        }
     }
 
     @Override
@@ -102,29 +77,6 @@ public class MedicalAlertBolt extends BaseRichBolt {
         if (anomaly) anomalyCount++;
         String alertMessage = anomaly ? alert.toString().trim() : "BRAK ANOMALII";
 
-        if (csvWriter != null) {
-            csvWriter.printf(Locale.US,
-                    "%d,%d,%s,%d,%d,%d,%d,%d,%.1f,%d,%d,%b,\"%s\",%d,%d,%d%n",
-                    now,
-                    age,
-                    sex == 1 ? "M" : "K",
-                    cp,
-                    trestbps,
-                    chol,
-                    thalach,
-                    exang,
-                    oldpeak,
-                    ca,
-                    target,
-                    anomaly,
-                    alertMessage.replace("\"", "'"),
-                    latency,
-                    tupleCount,
-                    anomalyCount
-            );
-            csvWriter.flush();
-        }
-
         if (anomaly) {
             String logMsg = String.format("[ALERT] wiek=%d plec=%s cel=%d | %s | latencja=%dms",
                     age, sex == 1 ? "M" : "K", target, alertMessage, latency);
@@ -157,7 +109,7 @@ public class MedicalAlertBolt extends BaseRichBolt {
             totalLatency = 0;
         }
 
-        collector.emit(tuple, new Values(age, sex, cp, trestbps, chol, thalach,
+        collector.emit(tuple, new Values(age, sex == 1 ? "M" : "K", cp, trestbps, chol, thalach,
                 exang, oldpeak, ca, target, anomaly, alertMessage, latency));
         collector.ack(tuple);
     }
