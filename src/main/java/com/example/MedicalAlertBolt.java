@@ -84,7 +84,7 @@ public class MedicalAlertBolt extends BaseRichBolt {
 
             MedWebSocketServer ws = MedWebSocketServer.getInstance();
             if (ws != null) {
-                String json = String.format(
+                String json = String.format(java.util.Locale.US,
                     "{\"age\":%d,\"sex\":\"%s\",\"trestbps\":%d,\"chol\":%d,\"thalach\":%d,"
                   + "\"oldpeak\":%.1f,\"exang\":%d,\"ca\":%d,\"target\":%d,"
                   + "\"alert\":\"%s\",\"latency\":%d,\"count\":%d,\"anomalyCount\":%d}",
