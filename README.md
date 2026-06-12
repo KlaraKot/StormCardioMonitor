@@ -122,11 +122,7 @@ W dashboardzie widoczne są między innymi:
 
 Poniższy GIF przedstawia działanie dashboardu w czasie rzeczywistym. Po uruchomieniu topologii Apache Storm alerty wykrywane przez aplikację są przesyłane przez WebSocket i wyświetlane w przeglądarce.
 
-```markdown
 ![Demo aplikacji](docs/demo.gif)
-```
-
-Po dodaniu pliku `docs/demo.gif` GIF będzie wyświetlany bezpośrednio w README.
 
 ## Wyniki działania
 
