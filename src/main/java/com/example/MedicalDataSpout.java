@@ -30,7 +30,7 @@ public class MedicalDataSpout extends BaseRichSpout {
         try {
             InputStream is = getClass().getClassLoader().getResourceAsStream("heart.csv");
             if (is == null) {
-                throw new RuntimeException("Nie znaleziono pliku heart.csv w zasobach");
+                throw new RuntimeException("Nie znaleziono pliku heart.csv");
             }
             reader = new BufferedReader(new InputStreamReader(is));
             reader.readLine();
@@ -38,7 +38,7 @@ public class MedicalDataSpout extends BaseRichSpout {
             throw new RuntimeException("Blad otwarcia pliku CSV", e);
         }
     }
-    
+
 // Storm wywołuje ją w nieskończonej pętli. Każde wywołanie czyta jedną linię, parsuje 14 kolumn medycznych (wiek, płeć, ciśnienie, cholesterol itd.), 
 // dołącza timestamp i emituje krotkę z 15 polami do topologii. 
 // Gdy plik się skończy, otwiera go od nowa — zapętla dane, udając nieskończony strumień.

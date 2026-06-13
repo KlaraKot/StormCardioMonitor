@@ -53,6 +53,6 @@ public class MedWebSocketServer extends WebSocketServer {
 
     @Override
     public void onStart() {
-        System.out.println("[WebSocket] Serwer wizualizacji wystartował na porcie " + getPort());
+        System.out.println("[WebSocket] start" + getPort());
     }
 }

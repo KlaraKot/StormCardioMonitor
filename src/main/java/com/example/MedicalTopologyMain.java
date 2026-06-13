@@ -27,7 +27,7 @@ public class MedicalTopologyMain {
         cluster.submitTopology("medical-alert-topology", config, builder.createTopology());
 
         // topologia działa przez 60 sekund, a następnie jest zatrzymywana
-        System.out.println("=== Topologia uruchomiona. Dziala przez 60 sekund... ===");
+        System.out.println("Topologia uruchomiona.");
         Thread.sleep(60_000);
 
         cluster.killTopology("medical-alert-topology");
@@ -35,6 +35,6 @@ public class MedicalTopologyMain {
 
         // połączenie WebSocket jest również zamykane
         MedWebSocketServer.getInstance().stop();
-        System.out.println("=== Topologia zatrzymana. ===");
+        System.out.println("Topologia zatrzymana.");
     }
 }

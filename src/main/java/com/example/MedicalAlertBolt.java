@@ -71,7 +71,7 @@ public class MedicalAlertBolt extends BaseRichBolt { // BaseRichBolt to klasa ba
             alert.append(String.format("[OBNIENIE ST: %.1f mm] ", oldpeak));
         }
         if (exang == 1) {
-            alert.append("[BOL W KLATCE PRZY WYSILKU] ");
+            alert.append("[BOL W KLATCE] ");
         }
         if (ca >= 2) {
             alert.append(String.format("[ZWEZENIE NACZYN: %d] ", ca));
