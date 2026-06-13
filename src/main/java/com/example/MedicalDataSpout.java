@@ -13,11 +13,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 
+// MedicalDataSpout to komponent źródłowy (spout) w topologii, który odczytuje dane z pliku heart.csv i emituje je jako krotki do dalszych boltów.
 public class MedicalDataSpout extends BaseRichSpout {
 
-    private SpoutOutputCollector collector;
+    private SpoutOutputCollector collector; 
     private BufferedReader reader;
 
+// otwieramy plik csv z danymi
     @Override
     public void open(Map<String, Object> conf, TopologyContext context, SpoutOutputCollector collector) {
         this.collector = collector;
@@ -36,6 +38,11 @@ public class MedicalDataSpout extends BaseRichSpout {
             throw new RuntimeException("Blad otwarcia pliku CSV", e);
         }
     }
+    
+// Storm wywołuje ją w nieskończonej pętli. Każde wywołanie czyta jedną linię, parsuje 14 kolumn medycznych (wiek, płeć, ciśnienie, cholesterol itd.), 
+// dołącza timestamp i emituje krotkę z 15 polami do topologii. 
+// Gdy plik się skończy, otwiera go od nowa — zapętla dane, udając nieskończony strumień.
+// Taki nieskończony strumień jest potrzebny aby symulować realne warunki pracy systemu, gdzie dane napływają 24/7.
 
     @Override
     public void nextTuple() {
@@ -81,6 +88,7 @@ public class MedicalDataSpout extends BaseRichSpout {
         }
     }
 
+// Funkcja declareOutputFields deklaruje pola, które będą emitowane przez ten bolt
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields(

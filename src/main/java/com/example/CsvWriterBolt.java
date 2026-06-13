@@ -9,7 +9,9 @@ import org.apache.storm.tuple.Tuple;
 import java.io.*;
 import java.util.Map;
 
-public class CsvWriterBolt extends BaseRichBolt {
+
+// CsvWriterBolt to końcowy bolt (komponent przetwarzający) w topologii, który zapisuje wyniki przetwarzania do pliku results/heart_results.csv.
+public class CsvWriterBolt extends BaseRichBolt { // BaseRichBolt to klasa bazowa z Apache Storm
 
     private transient PrintWriter csvWriter;
     private OutputCollector collector;
@@ -17,7 +19,9 @@ public class CsvWriterBolt extends BaseRichBolt {
     private long tupleCount = 0;
     private long anomalyCount = 0;
 
+// Funkcje prepare, execute i cleanup musimy nadpisać aby móc dodać swoją logikę inicjalizacji 
     @Override
+    // Funkcja prepare jest wywoływana podczas inicjalizacji bolta. Tutaj tworzymy katalog results (jeśli nie istnieje) i otwieramy plik heart_results.csv do zapisu. 
     public void prepare(Map<String, Object> stormConf, TopologyContext context, OutputCollector collector) {
         this.collector = collector;
 
@@ -41,6 +45,7 @@ public class CsvWriterBolt extends BaseRichBolt {
         }
     }
 
+    // dla każdej odebranej krotki zapisuje wiersz z danymi pacjenta, flagą anomalii, alertem i latencją do pliku CSV
     @Override
     public void execute(Tuple input) {
         try {
@@ -98,6 +103,7 @@ public class CsvWriterBolt extends BaseRichBolt {
         return escaped;
     }
 
+    // przy zamykaniu topologii wykonuje końcowy zapis i zamyka strumień
     @Override
     public void cleanup() {
         if (csvWriter != null) {
@@ -105,9 +111,9 @@ public class CsvWriterBolt extends BaseRichBolt {
             csvWriter.close();
         }
     }
-
+    
+// Storm wymaga deklarowania declareOutputFields mimo tego, ze bolt nie emituje nic dalej. Bez tej metody kod się nie skompiluje. 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        // Ten bolt nic dalej nie emituje.
-    }
+}
 }

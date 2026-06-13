@@ -6,6 +6,7 @@ import org.java_websocket.server.WebSocketServer;
 
 import java.net.InetSocketAddress;
 
+// MedWebSocketServer to serwer WebSocket, który łączy backend Storm z dashboardem w przeglądarce.
 public class MedWebSocketServer extends WebSocketServer {
 
     private static MedWebSocketServer instance;
@@ -14,15 +15,18 @@ public class MedWebSocketServer extends WebSocketServer {
         super(new InetSocketAddress(port));
     }
 
+    // tworzy jedną instancję serwera (Singleton) i uruchamia go w osobnym wątku
     public static void initialize(int port) {
         instance = new MedWebSocketServer(port);
         instance.start();
     }
 
+    // zwraca instancję serwera, żeby MedicalAlertBolt mógł wysyłać dane do przeglądarki
     public static MedWebSocketServer getInstance() {
         return instance;
     }
 
+    // rozsyła komunikat JSON do wszystkich podłączonych przeglądarek
     public void broadcastAlert(String text) {
         for (WebSocket conn : getConnections()) {
             conn.send(text);

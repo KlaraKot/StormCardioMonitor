@@ -10,7 +10,8 @@ import org.apache.storm.tuple.Values;
 
 import java.util.Map;
 
-public class MedicalAlertBolt extends BaseRichBolt {
+// Główny bolt analityczny. Zbiera krotki z danymi pacjentów i następnie na podstawie wartoiści takich jak ciśnienie, cholesterol, tętno itp. generuje alerty medyczne.
+public class MedicalAlertBolt extends BaseRichBolt { // BaseRichBolt to klasa bazowa z Apache Storm
 
     private static final int THROUGHPUT_INTERVAL = 10_000;
     private static final int    HIGH_BP      = 140;
@@ -18,20 +19,21 @@ public class MedicalAlertBolt extends BaseRichBolt {
     private static final int    LOW_MAX_HR   = 100;
     private static final double HIGH_ST_DEPR = 2.0;
 
-    private OutputCollector collector;
+    private OutputCollector collector; // klasa z Apache Stor, która pozwala na emitowanie nowych krotek do kolejnych boltów w topologii i informuje Storm, że krotka została poprawnie przetworzona.
 
     private long tupleCount      = 0;
     private long anomalyCount    = 0;
     private long windowStart     = 0;
     private double totalLatency  = 0;
 
-
+// funkcja prepare inicjalizuje kolektor wyjściowy i ustawia timer okna pomiarowego
     @Override
     public void prepare(Map<String, Object> conf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
-        this.windowStart = System.currentTimeMillis();
+        this.collector = collector; 
+        this.windowStart = System.currentTimeMillis(); // aktualny czas systemowy
 
     }
+// execute wywołuje się dla kazdej krotki, ktora do niego trafia. Pobiera dane z krotki, analizuje je i generuje alerty. Na koniec emituje nowe krotki z wynikami analizy.
 
     @Override
     public void execute(Tuple tuple) {
@@ -52,7 +54,9 @@ public class MedicalAlertBolt extends BaseRichBolt {
         totalLatency += latency;
         tupleCount++;
 
-        StringBuilder alert = new StringBuilder();
+        StringBuilder alert = new StringBuilder(); // string do którego będziemy dopisywać kolejne alerty
+
+// Na podstawie wartości poszczególnych atrybutów generujemy alerty. Jeśli wartość przekracza ustalone progi, dopisujemy odpowiedni komunikat typu wysokie cisnienie, wysoki cholesterol itp.
 
         if (trestbps >= HIGH_BP) {
             alert.append(String.format("[WYSOKIE CISNIENIE: %d mmHg] ", trestbps));
@@ -77,10 +81,11 @@ public class MedicalAlertBolt extends BaseRichBolt {
         if (anomaly) anomalyCount++;
         String alertMessage = anomaly ? alert.toString().trim() : "BRAK ANOMALII";
 
+// W przypadku wykrycia anomalii generujemy komunikat alertu i wysyłamy go przez WebSocket do dashboardu
         if (anomaly) {
-            String logMsg = String.format("[ALERT] wiek=%d plec=%s cel=%d | %s | latencja=%dms",
+            String log = String.format("[ALERT] wiek=%d plec=%s cel=%d | %s | latencja=%dms",
                     age, sex == 1 ? "M" : "K", target, alertMessage, latency);
-            System.out.println(logMsg);
+            System.out.println(log);
 
             MedWebSocketServer ws = MedWebSocketServer.getInstance();
             if (ws != null) {
@@ -110,10 +115,11 @@ public class MedicalAlertBolt extends BaseRichBolt {
         }
 
         collector.emit(tuple, new Values(age, sex == 1 ? "M" : "K", cp, trestbps, chol, thalach,
-                exang, oldpeak, ca, target, anomaly, alertMessage, latency));
-        collector.ack(tuple);
+                exang, oldpeak, ca, target, anomaly, alertMessage, latency)); // emitujemy nowe krotki
+        collector.ack(tuple); // informujemy Storm, że krotka została poprawnie przetworzona
     }
-
+    
+// Funkcja declareOutputFields deklaruje pola, które będą emitowane przez ten bolt
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields(
